@@ -15,22 +15,34 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Install dependencies
       run: |
         pip install pip setuptools wheel --upgrade
         pip install -e .[test]
 
-    - name: Run tests on Windows, Linux and MacOS
+    - name: Set PACKAGE_NAME (Linux/macOS)
+      if: runner.os != 'Windows'
       run: |
-        # Get package name from repository name
         PACKAGE_NAME=$(basename -s .git $GITHUB_REPOSITORY)
+        echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
+
+    - name: Set PACKAGE_NAME (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        $PACKAGE_NAME = ($env:GITHUB_REPOSITORY -replace '^.*/', '') -replace '\.git$', ''
+        echo "PACKAGE_NAME=$PACKAGE_NAME" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+      shell: pwsh
+
+    - name: Run tests
+      run: |
         echo "Package Name: $PACKAGE_NAME"
-        # RUN PYTEST
         pytest --pyargs $PACKAGE_NAME --cov $PACKAGE_NAME
 
-    - name: Upload coverage reports to Codecov with GitHub Action
+    - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
