@@ -4,10 +4,9 @@ on:
   workflow_call: # Reusing the workflow for other workflows
 
 jobs:
-  test-and-upload:
+  build:
     permissions:
         pull-requests: write
-
     runs-on: ubuntu-latest
 
     steps:
@@ -130,7 +129,7 @@ jobs:
       run: echo "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ steps.artifact-upload-step.outputs.artifact-id }}"
     
     - name: Comment PR
-      if: steps.test-lambda.outputs.test_success == 'true'
+      if: steps.test-lambda.outputs.test_success == 'true' && github.event_name == 'pull_request_target'
       uses: thollander/actions-comment-pull-request@v2
       with:
         message: |
