@@ -26,12 +26,11 @@ jobs:
 
     - name: Run tests on Windows, Linux and MacOS
       run: |
-              # Get package name from repository name
+        # Get package name from repository name
         PACKAGE_NAME=$(basename -s .git $GITHUB_REPOSITORY)
         echo "Package Name: $PACKAGE_NAME"
-      # RUN PYTEST
-        pytest --pyargs hermes_eea
-      pytest --pyargs hermes_eea --cov hermes_eea
+        # RUN PYTEST
+        pytest --pyargs $PACKAGE_NAME --cov $PACKAGE_NAME
 
     - name: Upload coverage reports to Codecov with GitHub Action
       uses: codecov/codecov-action@v3
